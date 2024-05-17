@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json.schemastore.org/eslintrc",
+  "root": true,
+  "parserOptions": {
+    // For simple-import-sort.
+    "sourceType": "module"
+  },
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "plugin:unicorn/recommended",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["simple-import-sort"],
+  // Although empty, declaring at all implicitly ignores the following patterns:
+  // ["/**/node_modules/*", ".*", "!.eslintrc.*", "!../"]
+  "ignorePatterns": [],
+  "rules": {
+    "@typescript-eslint/array-type": ["error", { "default": "generic" }],
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports" }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+
+    // Follow the Ruby convention.
+    "unicorn/filename-case": ["error", { "case": "snakeCase" }],
+    "unicorn/no-null": "off",
+    // if(typeof x === "undefined") gives better narrowing.
+    "unicorn/no-typeof-undefined": "off",
+    "unicorn/prevent-abbreviations": "off"
+  },
+  "overrides": [
+    // For simple-import-sort.
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parser": "@typescript-eslint/parser"
+    }
+  ]
+}
