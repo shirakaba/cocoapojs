@@ -1,8 +1,11 @@
 {
-  "name": "@repo/cocoapods",
+  "name": "cocoapojs",
   "version": "0.1.0",
   "type": "module",
   "main": "src/index.js",
+  "files": [
+    "src/index.js"
+  ],
   "description": "The core module of CocoaPods, ported to JS",
   "scripts": {
     "format": "prettier --no-error-on-unmatched-pattern --write --ignore-path=../../.prettierignore .",
