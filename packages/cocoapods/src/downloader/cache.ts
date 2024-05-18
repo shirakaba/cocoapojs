@@ -52,7 +52,7 @@ export class Cache {
     const spec_paths = readdirSync(specs_dir).filter((f) =>
       f.endsWith(".podspec.json"),
     );
-    return spec_paths.reduce<Record<string, CacheDescriptor[]>>(
+    return spec_paths.reduce<Record<string, Array<CacheDescriptor>>>(
       (hash, spec_path) => {
         const spec = Specification.from_file(spec_path);
         hash[spec.name] ||= [];
