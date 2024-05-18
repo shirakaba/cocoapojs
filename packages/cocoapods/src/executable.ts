@@ -14,7 +14,7 @@ export class Executable {
       return Executable.execute_command(name, command, false);
     };
     (clazz as Clazz)[`${name}!`] = function (command: Array<string>) {
-      return Executable.execute_command(name, command, true);
+      return Executable.execute_command(name, command);
     };
   }
 
@@ -30,8 +30,7 @@ export class Executable {
         throw error;
       }
 
-      // TODO: red color
-      UserInterface.message("[!] Failed: #{full_command}");
+      UserInterface.message("\u001B[31m[!] Failed: #{full_command}\u001B[0m");
 
       // FIXME: return stdout and stderr even in error case.
       return "";

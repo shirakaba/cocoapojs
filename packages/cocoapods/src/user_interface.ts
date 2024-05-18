@@ -268,6 +268,9 @@ export class UserInterface {
     set: Set<unknown>,
     mode: "normal" | "name_and_version" = "normal",
   ): void {
+    // TODO: reverse-engineer this
+    // https://github.com/CocoaPods/Core/blob/d9cdb56b6b5d8bf11ab7b04cc3e01587f6196d8c/lib/cocoapods-core/specification/set/presenter.rb
+
     // if mode == :name_and_version
     //   puts_indented "#{set.name} #{set.versions.first.version}"
     // else

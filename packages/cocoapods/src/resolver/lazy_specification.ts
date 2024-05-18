@@ -9,6 +9,7 @@ class Specification {
 //   - https://github.com/CocoaPods/CocoaPods/blob/028af0bdfc56df9e1b221a59cf36306690cf2ce4/spec/spec_helper/mock_source.rb#L58
 // - Sandbox
 //   - https://github.com/CocoaPods/CocoaPods/blob/028af0bdfc56df9e1b221a59cf36306690cf2ce4/lib/cocoapods/sandbox.rb#L257
+// - https://github.com/CocoaPods/Core/blob/d9cdb56b6b5d8bf11ab7b04cc3e01587f6196d8c/lib/cocoapods-core/specification/set/presenter.rb
 // class SpecSource {
 //   // Add necessary properties and methods for SpecSource
 //   specification(name: string, version: string): Specification {

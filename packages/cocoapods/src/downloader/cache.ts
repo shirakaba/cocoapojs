@@ -41,8 +41,10 @@ export class Cache {
   async download_pod(request: Request) {
     try {
       this.cached_pod(request) || this.uncached_pod(request);
-      // UI.puts("\n[!] Error installing #{request.name}".red)
     } catch (error) {
+      UserInterface.puts(
+        `\n\u001B[31m[!] Error installing ${request.name}\u001B[0m`,
+      );
       throw error;
     }
   }
@@ -229,11 +231,18 @@ export class Cache {
     mkdirSync(path.relative(destination, ".."), { recursive: true });
     Cache.write_lock(destination, () => {
       this.rsync_contents(source, destination);
+
+      // TODO: port this
+      // https://github.com/CocoaPods/CocoaPods/blob/028af0bdfc56df9e1b221a59cf36306690cf2ce4/lib/cocoapods/installer/pod_source_preparer.rb#L6
       new PodSourcePreparer(spec, destination).prepare();
+
+      // TODO: port this
+      // https://github.com/CocoaPods/CocoaPods/blob/028af0bdfc56df9e1b221a59cf36306690cf2ce4/lib/cocoapods/sandbox/pod_dir_cleaner.rb#L4
       new Sandbox.PodDirCleaner(destination, specs_by_platform).clean();
     });
   }
 
+  // TODO: would be nice to pipe through the rsync progress
   private rsync_contents(source: string, destination: string) {
     Executable.execute_command(
       "rsync",
@@ -258,6 +267,7 @@ export class Cache {
   private write_spec(spec: Specification, p: string): void {
     mkdirSync(path.dirname(p), { recursive: true });
     Cache.write_lock(p, () => {
+      // See https://github.com/CocoaPods/Core/blob/d9cdb56b6b5d8bf11ab7b04cc3e01587f6196d8c/lib/cocoapods-core/specification/json.rb#L13
       writeFileSync(p, spec.to_pretty_json());
     });
   }
