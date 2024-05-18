@@ -175,13 +175,15 @@ export class Cache {
 
   private cached_spec(request: Request) {
     const p = this.path_for_spec(request);
-    if (statSync(p).isFile()) {
-      try {
-        return Specification.from_file(p);
-      } catch (e) {
-        // if JSON Parse error
-        return null;
-      }
+    if (!statSync(p).isFile()) {
+      return;
+    }
+    
+    try {
+      return Specification.from_file(p);
+    } catch {
+      // if JSON Parse error
+      return;
     }
   }
 
