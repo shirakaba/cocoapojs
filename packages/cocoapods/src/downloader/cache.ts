@@ -30,10 +30,7 @@ enum FileLockAccess {
 }
 
 export class Cache {
-  root: string;
-
-  constructor(root: string) {
-    this.root = root;
+  constructor(public root: string) {
     this.ensure_matching_version();
   }
 
