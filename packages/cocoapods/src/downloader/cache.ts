@@ -243,7 +243,7 @@ export class Cache {
 
   private group_subspecs_by_platform(
     spec: Specification,
-  ): Record<string, Specification[]> {
+  ): Record<string, Array<Specification>> {
     const specs_by_platform: Record<string, Specification[]> = {};
     for (const ss of [spec, ...spec.recursive_subspecs()]) {
       for (const platform of ss.available_platforms) {
