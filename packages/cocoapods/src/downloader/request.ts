@@ -1,5 +1,6 @@
 import { hash } from "node:crypto";
-import { Specification } from "../spec";
+
+import type { Specification } from "../spec.js";
 
 export class Request {
   spec!: Specification;
@@ -35,7 +36,7 @@ export class Request {
     params?: object;
     spec?: Specification;
   }): string {
-    const checksum = spec.checksum ? `-${spec.checksum.substring(0, 5)}` : "";
+    const checksum = spec.checksum ? `-${spec.checksum.slice(0, 5)}` : "";
 
     if (this.released_pod) {
       return `Release/${name}/${spec.version}${checksum}`;

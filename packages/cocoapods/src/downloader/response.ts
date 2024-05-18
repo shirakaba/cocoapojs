@@ -1,4 +1,4 @@
-import { Specification } from "../spec";
+import type { Specification } from "../spec.js";
 
 /**
  * A response to a download request.

@@ -7,7 +7,7 @@ export interface Specification {
   version: string;
   checksum?: string;
 
-  available_platforms: string[];
+  available_platforms: Array<string>;
 
-  recursive_subspecs(): Specification[];
+  recursive_subspecs(): Array<Specification>;
 }

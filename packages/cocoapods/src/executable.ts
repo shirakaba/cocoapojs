@@ -21,7 +21,7 @@ export class Executable {
   static execute_command(
     name: string,
     command: Array<string>,
-    raise_on_failure: boolean,
+    raise_on_failure = true,
   ): string {
     try {
       return execSync(`${name} ${command.join(" ")}`).toString();

@@ -1,20 +1,24 @@
-import path from "node:path";
+import assert from "node:assert";
 import {
-  readFileSync,
-  statSync,
-  rmSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
-  writeFileSync,
   readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
 } from "node:fs";
-import { Request } from "./request";
-import { Response } from "./response";
 import { tmpdir } from "node:os";
-import { POD_VERSION } from "../gem_version";
-import { Specification } from "../spec";
-import assert from "node:assert";
+import path from "node:path";
+
+import { Executable } from "../executable.js";
+import { POD_VERSION } from "../gem_version.js";
+import { Specification } from "../spec.js";
+import { UserInterface } from "../user_interface.js";
+import { Downloader } from "./downloader.js";
+import { Request } from "./request.js";
+import { Response } from "./response.js";
 
 interface CacheDescriptor {
   spec_file: string;
@@ -30,23 +34,20 @@ enum FileLockAccess {
 }
 
 export class Cache {
-  root: string;
-
-  constructor(root: string) {
-    this.root = root;
+  constructor(public root: string) {
     this.ensure_matching_version();
   }
 
-  public async download_pod(request: Request) {
+  async download_pod(request: Request) {
     try {
       this.cached_pod(request) || this.uncached_pod(request);
-    } catch (e) {
       // UI.puts("\n[!] Error installing #{request.name}".red)
-      throw e;
+    } catch (error) {
+      throw error;
     }
   }
 
-  public cache_descriptors_per_pod() {
+  cache_descriptors_per_pod() {
     const specs_dir = path.join(this.root, "Specs");
     const release_specs_dir = path.join(specs_dir, "Release");
     if (!existsSync(specs_dir)) {
@@ -55,24 +56,23 @@ export class Cache {
     const spec_paths = readdirSync(specs_dir).filter((f) =>
       f.endsWith(".podspec.json"),
     );
-    return spec_paths.reduce<Record<string, CacheDescriptor[]>>(
-      (hash, spec_path) => {
-        const spec = Specification.from_file(spec_path);
-        hash[spec.name] ||= [];
-        const is_release = spec_path.startsWith(release_specs_dir);
-        const request = new Request({ spec, released: is_release });
-        hash[spec.name].push({
-          spec_file: spec_path,
-          name: spec.name,
-          version: spec.version,
-          release: is_release,
-          slug: path.join(this.root, request.slug({})),
-        });
 
-        return hash;
-      },
-      {},
-    );
+    const hash: Record<string, Array<CacheDescriptor>> = {};
+    for (const spec_path of spec_paths) {
+      const spec = Specification.from_file(spec_path);
+      hash[spec.name] ||= [];
+      const is_release = spec_path.startsWith(release_specs_dir);
+      const request = new Request({ spec, released: is_release });
+      hash[spec.name].push({
+        spec_file: spec_path,
+        name: spec.name,
+        version: spec.version,
+        release: is_release,
+        slug: path.join(this.root, request.slug({})),
+      });
+    }
+
+    return hash;
   }
 
   /**
@@ -80,10 +80,10 @@ export class Cache {
    * See `Cache.lock` for more details.
    */
 
-  public static read_lock(
+  static read_lock(
     location: string,
-    callback: (location: string) => {},
-  ) {
+    callback: (location: string) => void,
+  ): void {
     Cache.lock(location, FileLockAccess.Shared, callback);
   }
 
@@ -92,18 +92,18 @@ export class Cache {
    * See `Cache.lock` for more details.
    */
 
-  public static write_lock(
+  static write_lock(
     location: string,
-    callback: (location: string) => {},
-  ) {
+    callback: (location: string) => void,
+  ): void {
     Cache.lock(location, FileLockAccess.Exclusive, callback);
   }
 
-  public static lock(
+  static lock(
     location: string,
     lock_type: FileLockAccess,
-    callback: (location: string) => {},
-  ) {
+    callback: (location: string) => void,
+  ): void {
     const lockfile = `${location}.lock`;
     assert(false, "unimplemented");
     // FIXME: How to handle file locking?
@@ -138,7 +138,7 @@ export class Cache {
   /**
    * Ensures the cache on disk was created with the same CocoaPods version as is currently running.
    */
-  private ensure_matching_version() {
+  private ensure_matching_version(): void {
     const version_file = path.join(this.root, "VERSION");
 
     const version = statSync(version_file).isFile()
@@ -178,13 +178,15 @@ export class Cache {
 
   private cached_spec(request: Request) {
     const p = this.path_for_spec(request);
-    if (statSync(p).isFile()) {
-      try {
-        return Specification.from_file(p);
-      } catch (e) {
-        // if JSON Parse error
-        return null;
-      }
+    if (!statSync(p).isFile()) {
+      return;
+    }
+
+    try {
+      return Specification.from_file(p);
+    } catch {
+      // if JSON Parse error
+      return;
     }
   }
 
@@ -222,7 +224,7 @@ export class Cache {
     source: string,
     destination: string,
     spec: Specification,
-  ) {
+  ): void {
     const specs_by_platform = this.group_subspecs_by_platform(spec);
     mkdirSync(path.relative(destination, ".."), { recursive: true });
     Cache.write_lock(destination, () => {
@@ -233,19 +235,17 @@ export class Cache {
   }
 
   private rsync_contents(source: string, destination: string) {
-    Executable.execute_command("rsync", [
-      "-a",
-      "--exclude=.git",
-      "--delete",
-      `${source}/`,
-      destination,
-    ]);
+    Executable.execute_command(
+      "rsync",
+      ["-a", "--exclude=.git", "--delete", `${source}/`, destination],
+      false,
+    );
   }
 
   private group_subspecs_by_platform(
     spec: Specification,
-  ): Record<string, Specification[]> {
-    const specs_by_platform: Record<string, Specification[]> = {};
+  ): Record<string, Array<Specification>> {
+    const specs_by_platform: Record<string, Array<Specification>> = {};
     for (const ss of [spec, ...spec.recursive_subspecs()]) {
       for (const platform of ss.available_platforms) {
         specs_by_platform[platform] ||= [];
@@ -255,7 +255,7 @@ export class Cache {
     return specs_by_platform;
   }
 
-  private write_spec(spec: Specification, p: string) {
+  private write_spec(spec: Specification, p: string): void {
     mkdirSync(path.dirname(p), { recursive: true });
     Cache.write_lock(p, () => {
       writeFileSync(p, spec.to_pretty_json());
