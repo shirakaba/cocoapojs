@@ -247,7 +247,6 @@ export class Cache {
     Executable.execute_command(
       "rsync",
       ["-a", "--exclude=.git", "--delete", `${source}/`, destination],
-      false,
     );
   }
 
