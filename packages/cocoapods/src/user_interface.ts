@@ -2,6 +2,9 @@
 import * as path from "node:path";
 import { cwd } from "node:process";
 
+import type { Color } from "kleur";
+import { green, yellow } from "kleur";
+
 import { Config } from "./config.js";
 
 // We could model this as either a namespace or a fully-static class. As
@@ -9,10 +12,10 @@ import { Config } from "./config.js";
 //
 // https://github.com/CocoaPods/CocoaPods/blob/master/lib/cocoapods/user_interface.rb
 export class UserInterface {
-  static readonly title_colors = ["yellow", "green"];
+  static readonly title_colors = ["yellow", "green"] as const;
   static readonly title_color_map = {
-    yellow: "[33m",
-    green: "[32m",
+    yellow,
+    green,
   } as const;
   static title_level = 0;
   static indentation_level = 2;
@@ -131,16 +134,13 @@ export class UserInterface {
         if (this.title_level < 2) {
           title = `\n${title}`;
         }
-        const color = this.title_colors[this.title_level];
-        const color_code = this.title_color_map[
-          color as keyof (typeof UserInterface)["title_color_map"]
-        ] as string | undefined;
 
-        if (color && color_code) {
+        const color: Color | undefined =
+          this.title_color_map[this.title_colors[this.title_level]];
+        if (color) {
           // TODO: check if this is actually correct! Not sure if we need to
           // clear the color code or not.
-          // eslint-disable-next-line unicorn/no-hex-escape
-          title = `\x1B${color_code}${title}\x1B[0m`;
+          title = color(title);
         }
 
         this.puts(title);
@@ -226,8 +226,7 @@ export class UserInterface {
    * @param message The message to print.
    */
   static notice(message: string): void {
-    const greenMessage = `\x1B${this.title_color_map.green}${message}\x1B[0m`;
-    this.puts(`\n[!] ${greenMessage}`);
+    this.puts(`\n[!] ${green(message)}`);
   }
 
   /**
@@ -368,8 +367,7 @@ export class UserInterface {
         continue;
       }
 
-      const yellow = this.title_color_map.yellow;
-      console.warn(`\x1B${yellow}\n[!] ${warning.message}\x1B[0m`);
+      console.warn(yellow(`\n[!] ${warning.message}`));
 
       for (const action of warning.actions) {
         this.puts(this.wrap_string(`- ${action}`, 4));

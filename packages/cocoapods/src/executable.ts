@@ -1,5 +1,7 @@
 import { execSync } from "node:child_process";
 
+import { red } from "kleur";
+
 import { UserInterface } from "./user_interface.js";
 
 // https://github.com/CocoaPods/CocoaPods/blob/028af0bdfc56df9e1b221a59cf36306690cf2ce4/lib/cocoapods/executable.rb
@@ -23,14 +25,16 @@ export class Executable {
     command: Array<string>,
     raise_on_failure = true,
   ): string {
+    const full_command = `${name} ${command.join(" ")}`;
+
     try {
-      return execSync(`${name} ${command.join(" ")}`).toString();
+      return execSync(full_command).toString();
     } catch (error) {
       if (raise_on_failure) {
         throw error;
       }
 
-      UserInterface.message("\u001B[31m[!] Failed: #{full_command}\u001B[0m");
+      UserInterface.message(red(`[!] Failed: ${full_command}`));
 
       // FIXME: return stdout and stderr even in error case.
       return "";

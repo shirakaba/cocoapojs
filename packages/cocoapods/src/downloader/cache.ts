@@ -12,6 +12,8 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 
+import { red } from "kleur";
+
 import { Executable } from "../executable.js";
 import { POD_VERSION } from "../gem_version.js";
 import { Specification } from "../spec.js";
@@ -42,9 +44,7 @@ export class Cache {
     try {
       this.cached_pod(request) || this.uncached_pod(request);
     } catch (error) {
-      UserInterface.puts(
-        `\n\u001B[31m[!] Error installing ${request.name}\u001B[0m`,
-      );
+      UserInterface.puts(red(`\n[!] Error installing ${request.name}`));
       throw error;
     }
   }
@@ -244,10 +244,13 @@ export class Cache {
 
   // TODO: would be nice to pipe through the rsync progress
   private rsync_contents(source: string, destination: string) {
-    Executable.execute_command(
-      "rsync",
-      ["-a", "--exclude=.git", "--delete", `${source}/`, destination],
-    );
+    Executable.execute_command("rsync", [
+      "-a",
+      "--exclude=.git",
+      "--delete",
+      `${source}/`,
+      destination,
+    ]);
   }
 
   private group_subspecs_by_platform(
