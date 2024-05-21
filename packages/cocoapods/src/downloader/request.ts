@@ -6,7 +6,7 @@ export class Request {
   spec!: Specification;
   released_pod!: boolean;
   name!: string;
-  params!: Record<string, string>;
+  params!: Record<string, string | boolean>;
 
   constructor({
     spec = null,
@@ -17,7 +17,7 @@ export class Request {
     spec?: Specification | null;
     released?: boolean;
     name?: string | null;
-    params?: Record<string, string> | null;
+    params?: Record<string, string | boolean> | null;
   }) {
     this.released_pod = released;
     this.spec = spec!;

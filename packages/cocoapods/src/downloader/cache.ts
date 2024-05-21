@@ -14,11 +14,11 @@ import path from "node:path";
 
 import { red } from "kleur";
 
+import { Downloader } from "../downloader.js";
 import { Executable } from "../executable.js";
 import { POD_VERSION } from "../gem_version.js";
 import { Specification } from "../spec.js";
 import { UserInterface } from "../user_interface.js";
-import { Downloader } from "./downloader.js";
 import { Request } from "./request.js";
 import { Response } from "./response.js";
 
@@ -42,7 +42,7 @@ export class Cache {
 
   async download_pod(request: Request) {
     try {
-      this.cached_pod(request) || this.uncached_pod(request);
+      return this.cached_pod(request) || (await this.uncached_pod(request));
     } catch (error) {
       UserInterface.puts(red(`\n[!] Error installing ${request.name}`));
       throw error;
@@ -215,7 +215,7 @@ export class Cache {
     return result;
   }
 
-  private download(
+  private async download(
     request: Request,
     target: string,
   ): Promise<[Response, Record<string, Specification>]> {

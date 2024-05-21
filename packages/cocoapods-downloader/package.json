@@ -1,23 +1,22 @@
 {
-  "name": "@repo/cocoapods",
+  "name": "@repo/cocoapods-downloader",
   "version": "0.1.0",
   "type": "module",
   "main": "src/index.js",
   "files": [
     "src/index.js"
   ],
-  "description": "CocoaPods, ported to JS",
+  "description": "The downloader module of CocoaPods, ported to JS",
   "scripts": {
     "format": "prettier --no-error-on-unmatched-pattern --write --ignore-path=../../.prettierignore .",
     "lint": "eslint --max-warnings=0 --no-error-on-unmatched-pattern \"**/*.{js,cjs,mjs,ts}\""
   },
   "dependencies": {
-    "execa": "^9.1.0"
+    "@xmldom/xmldom": "^0.8.10",
+    "execa": "^9.1.0",
+    "xpath": "^0.0.34"
   },
   "devDependencies": {
     "@types/node": "^20.12.12"
-  },
-  "dependencies": {
-    "kleur": "^4.1.5"
   }
 }

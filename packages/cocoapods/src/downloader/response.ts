@@ -6,7 +6,7 @@ import type { Specification } from "../spec.js";
 export class Response {
   constructor(
     public location: string | null,
-    public spec: Specification,
-    public checkout_options: Record<string, string>,
+    public spec: Specification | null = null,
+    public checkout_options: Record<string, string | boolean>,
   ) {}
 }
