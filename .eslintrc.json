@@ -20,6 +20,8 @@
   // ["/**/node_modules/*", ".*", "!.eslintrc.*", "!../"]
   "ignorePatterns": [],
   "rules": {
+    // Gonna have to use this a lot for now.
+    "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/array-type": ["error", { "default": "generic" }],
     "@typescript-eslint/consistent-type-imports": [
       "error",
@@ -39,7 +41,6 @@
 
     // Follow the Ruby convention.
     "unicorn/filename-case": ["error", { "case": "snakeCase" }],
-    "unicorn/no-null": "off",
     // if(typeof x === "undefined") gives better narrowing.
     "unicorn/no-typeof-undefined": "off",
     "unicorn/prevent-abbreviations": "off"
