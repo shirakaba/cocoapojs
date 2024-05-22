@@ -7,18 +7,34 @@ import { VERSION } from "./gem_version.js";
 
 export type UICallbacks = typeof defaultCallbacks;
 
-export abstract class Base<Options extends Record<string, unknown>> {
+export abstract class Base<Options extends Record<string, string>> {
+  #options: Partial<Options>;
+  static options(): Array<string> {
+    return [];
+  }
+  get options(): Array<keyof Options> {
+    return Object.keys(this.#options);
+  }
+
   protected constructor(
     public target_path: string,
     public url: string,
-    public options: Partial<Options>,
+    options: Partial<Options>,
     private callbacks: UICallbacks = defaultCallbacks,
   ) {
-    // TODO: Validate no unrecognized options?
-  }
+    this.#options = options;
 
-  get downloader_options(): Array<string> {
-    return [];
+    const supportedOptions = new Set(
+      (this.constructor as typeof Base).options(),
+    );
+    const unrecognized_options = Object.keys(options).filter(
+      (option) => !supportedOptions.has(option),
+    );
+    if (unrecognized_options.length > 0) {
+      throw new Error(
+        `Unrecognized options ${JSON.stringify(unrecognized_options)}`,
+      );
+    }
   }
 
   get name() {
