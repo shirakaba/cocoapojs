@@ -11,7 +11,7 @@ export class Http extends RemoteFile {
     super(target_path, url, options, callbacks);
   }
 
-  protected async download_file(full_filename: string): Promise<void> {
+  protected download_file(full_filename: string): void {
     const parameters = [
       "-f",
       "-L",
@@ -38,6 +38,6 @@ export class Http extends RemoteFile {
       }
     }
 
-    await Http.execute_command("curl", parameters);
+    Http.execute_command("curl", parameters);
   }
 }

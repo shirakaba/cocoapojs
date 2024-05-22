@@ -168,7 +168,7 @@ export abstract class RemoteFile extends Base<RemoteFileOptions> {
   }
 
   private extract_dmg(unpack_from: string, unpack_to: string) {
-    const plist_s = RemoteFile.execute_commandSync("hdiutil", [
+    const plist_s = RemoteFile.execute_command("hdiutil", [
       "attach",
       "-plist",
       "-nobrowse",

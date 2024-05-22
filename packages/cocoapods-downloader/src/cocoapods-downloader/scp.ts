@@ -11,11 +11,11 @@ export class Scp extends RemoteFile {
     super(target_path, url, options, callbacks);
   }
 
-  protected async download_file(full_filename: string): Promise<void> {
+  protected download_file(full_filename: string): void {
     const url = new URL(this.url);
 
     const port = url.port || "22";
     const source = `${url.username ? url.username + "@" : ""}${url.host}:'${url.pathname}'`;
-    await Scp.execute_command("scp", ["-P", port, "-q", source, full_filename]);
+    Scp.execute_command("scp", ["-P", port, "-q", source, full_filename]);
   }
 }

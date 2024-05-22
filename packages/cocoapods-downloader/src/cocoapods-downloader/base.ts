@@ -1,7 +1,8 @@
 import { mkdirSync } from "node:fs";
 
 import { version as projectVersion } from "@repo/cocoapods/package.json" with { type: "json" };
-import { execa, execaSync } from "execa";
+// TODO: distinguish src and dist. Or couple to Bun.
+import { Executable } from "@repo/cocoapods/src/index.js";
 
 import { VERSION } from "./gem_version.js";
 
@@ -52,7 +53,7 @@ export abstract class Base<Options extends Record<string, string>> {
   protected abstract perform_download(): Promise<void>;
   protected abstract perform_download_head(): Promise<void>;
 
-  async download() {
+  async download(): Promise<void> {
     this.validate_input();
     await this.ui_action(`${this.name} download`, async () => {
       mkdirSync(this.target_path, { recursive: true });
@@ -106,34 +107,34 @@ export abstract class Base<Options extends Record<string, string>> {
     return options;
   }
 
-  static execute_commandSync(
-    executable: string,
+  static execute_command(
+    name: string,
     command: Array<string>,
     raise_on_failure = true,
-  ) {
-    const result = execaSync(executable, command, {
-      reject: !raise_on_failure,
-      all: true,
-    });
+  ): string {
+    // TODO: assess this augmentation found in:
+    // https://github.com/CocoaPods/cocoapods-downloader/blob/e6851647294166da0b47f2619cc60b761b77f498/spec/spec_helper.rb
+    // # Override hook to suppress executables output.
+    // #
+    // def execute_command(executable, command, raise_on_failure = false)
+    //   require 'shellwords'
+    //   command = command.map(&:to_s).map(&:shellescape).join(' ')
+    //   output = `\n#{executable} #{command} 2>&1`
+    //   check_exit_code!(executable, command, output) if raise_on_failure
+    //   output
+    // end
 
-    console.log(result.stdout);
+    // https://github.com/CocoaPods/cocoapods-downloader/blob/e6851647294166da0b47f2619cc60b761b77f498/lib/cocoapods-downloader/api.rb
+    // def execute_command(executable, command, raise_on_failure = false)
+    //   require 'shellwords'
+    //   command = command.map(&:to_s).map(&:shellescape).join(' ')
+    //   output = `\n#{executable} #{command} 2>&1`
+    //   check_exit_code!(executable, command, output) if raise_on_failure
+    //   puts output
+    //   output
+    // end
 
-    return result.stdout;
-  }
-
-  static async execute_command(
-    executable: string,
-    command: Array<string>,
-    raise_on_failure = true,
-  ) {
-    const result = await execa(executable, command, {
-      reject: !raise_on_failure,
-      all: true,
-    });
-
-    console.log(result.stdout);
-
-    return result.stdout;
+    return Executable.execute_command(name, command, raise_on_failure);
   }
 
   async ui_action(message: string, callback: () => Promise<void>) {

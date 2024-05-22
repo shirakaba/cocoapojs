@@ -58,7 +58,7 @@ export class Git extends Base<CheckoutOptions> {
       (v): v is string => v != null,
     );
 
-    const output = Git.execute_commandSync("git", command);
+    const output = Git.execute_command("git", command);
     const match = Git.commit_from_ls_remote(output, options.branch);
 
     if (match == null) {
@@ -100,7 +100,7 @@ export class Git extends Base<CheckoutOptions> {
   }
 
   private git(args: Array<string>): string {
-    return Git.execute_commandSync("git", args, true);
+    return Git.execute_command("git", args, true);
   }
 
   private async clone(force_head = false, shallow_clone = true): Promise<void> {

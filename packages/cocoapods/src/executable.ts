@@ -40,6 +40,38 @@ export class Executable {
       return "";
     }
   }
+
+  // TODO: assess execa
+
+  // static execute_commandSync(
+  //   executable: string,
+  //   command: Array<string>,
+  //   raise_on_failure = true,
+  // ) {
+  //   const result = execaSync(executable, command, {
+  //     reject: !raise_on_failure,
+  //     all: true,
+  //   });
+
+  //   console.log(result.stdout);
+
+  //   return result.stdout;
+  // }
+
+  // static async execute_command(
+  //   executable: string,
+  //   command: Array<string>,
+  //   raise_on_failure = true,
+  // ) {
+  //   const result = await execa(executable, command, {
+  //     reject: !raise_on_failure,
+  //     all: true,
+  //   });
+
+  //   console.log(result.stdout);
+
+  //   return result.stdout;
+  // }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
