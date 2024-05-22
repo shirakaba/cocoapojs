@@ -37,12 +37,20 @@ export abstract class Base<Options extends Record<string, string>> {
     }
   }
 
+  /**
+   * The name of the downloader
+   *
+   * @example
+   * import { Mercurial } from "@repo/cocoapods-downloader/dist/mercurial.js";
+   *
+   * new Mercurial().name; // returns "Mercurial"
+   */
   get name() {
-    return "Base";
+    return this.constructor.name;
   }
 
-  protected async perform_download() {}
-  protected async perform_download_head() {}
+  protected abstract perform_download(): Promise<void>;
+  protected abstract perform_download_head(): Promise<void>;
 
   async download() {
     this.validate_input();
@@ -77,17 +85,24 @@ export abstract class Base<Options extends Record<string, string>> {
 
   public abstract checkout_options(): Record<string, string | boolean>;
 
-  protected validate_input(): void {}
+  /**
+   * Provides a before-download check for safety of the options in the
+   * concrete downloader.
+   *
+   */
+  protected validate_input(): void {
+    // No-op, in the case of this base class.
+  }
 
   static user_agent_string(): string {
-    const pods_version = `CocoaPods/${projectVersion}`;
-
-    return `${pods_version}cocoapods-downloader/${VERSION}`;
+    return `CocoaPods/${projectVersion} cocoapods-downloader/${VERSION}`;
   }
 
   static preprocess_options(
     options: Record<string, string | boolean>,
   ): Record<string, string | boolean> {
+    // In this base class, we don't do any pre-processing, and just return the
+    // options as-is.
     return options;
   }
 
