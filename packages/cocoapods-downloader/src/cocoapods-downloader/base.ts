@@ -1,8 +1,8 @@
 import { mkdirSync } from "node:fs";
 
+import { version as projectVersion } from "@repo/cocoapods/package.json" with { type: "json" };
 import { execa, execaSync } from "execa";
 
-import { version as projectVersion } from "../../../../package.json";
 import { VERSION } from "./gem_version.js";
 
 export type UICallbacks = typeof defaultCallbacks;
