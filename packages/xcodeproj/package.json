@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "description": "The Xcodeproj module of CocoaPods, ported to JS",
   "scripts": {
-    "format": "prettier --no-error-on-unmatched-pattern --write --ignore-path=../../.prettierignore .",
-    "lint": "eslint --max-warnings=0 --no-error-on-unmatched-pattern \"**/*.{js,cjs,mjs,ts}\""
+    "format": "biome format --write .",
+    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched ./src"
   }
 }

@@ -17,6 +17,7 @@ type Version = any;
  * @note   The set class is not and should be not aware of the backing store
  *         of a Source.
  */
+
 export class Set {
   #name: string;
   /** The name of the Pod. */
@@ -186,7 +187,9 @@ export class Set {
   }
 
   to_s() {
-    return `#<${this.constructor.name} for '${this.name}' available at '${this.sources.map(({ name }) => name).join(", ")}'>`;
+    return `#<${this.constructor.name} for '${
+      this.name
+    }' available at '${this.sources.map(({ name }) => name).join(", ")}'>`;
   }
   inspect() {
     return this.to_s();
