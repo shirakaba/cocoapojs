@@ -26,7 +26,7 @@ export class Downloader {
         throw new Error("Must provide a `cache_path` when caching.");
       }
       const cache = new Cache(cache_path);
-      result = cache.download_pod(request);
+      result = await cache.download_pod(request);
     } else {
       if (!target) {
         throw new Error("Must provide a `target` when caching is disabled.");
@@ -36,15 +36,16 @@ export class Downloader {
       new PodSourcePreparer(result.spec, result.location).prepare();
     }
 
-    if (target && result.location && target !== result.location) {
+    const location = result.location;
+    if (target && location && target !== location) {
       UserInterface.message(
-        "Copying #{request.name} from `#{result.location}` to #{UI.path target}",
+        `Copying ${request.name} from '${location}' to "${target}"`,
         "> ",
-        undefined,
+        0,
         () => {
-          Cache.read_lock(result.location, () => {
+          Cache.read_lock(location, () => {
             rmSync(target, { recursive: true });
-            cpSync(result.location, target, { recursive: true });
+            cpSync(location, target, { recursive: true });
           });
         },
       );
@@ -71,7 +72,7 @@ export class Downloader {
       if (request.spec) {
         podspecs[request.name] = request.spec;
       }
-      let spec: Specification | null = null;
+      let spec: Specification | undefined = undefined;
       for (const [name, s] of Object.entries(podspecs)) {
         if (request.name === name) {
           spec = s;

@@ -106,6 +106,10 @@ export class Cache {
     lock_type: FileLockAccess,
     callback: (location: string) => void,
   ): void {
+    if (!callback) {
+      throw new Error("no callback given");
+    }
+
     const lockfile = `${location}.lock`;
     assert(false, "unimplemented");
     // FIXME: How to handle file locking?
@@ -195,7 +199,7 @@ export class Cache {
   private async uncached_pod(request: Request) {
     const target = mkdtempSync(path.join(tmpdir(), "pod-"));
     const [result, podspecs] = await this.download(request, target);
-    result.location = null;
+    result.location = undefined;
 
     for (const [name, spec] of Object.entries(podspecs)) {
       const destination = this.path_for_pod(request, {

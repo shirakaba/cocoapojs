@@ -157,6 +157,7 @@ export abstract class Base<Options extends Record<string, string>> {
   }
 }
 
+// https://github.com/CocoaPods/cocoapods-downloader/blob/e6851647294166da0b47f2619cc60b761b77f498/lib/cocoapods-downloader/api.rb
 const defaultCallbacks = {
   /**
    * Indicates that an action will be performed.

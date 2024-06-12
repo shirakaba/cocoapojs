@@ -50,7 +50,7 @@ export function preprocess_options(
 function class_for_options(
   options: Record<string, unknown>,
 ): [Strategy, (typeof downloader_class_by_key)[Strategy]] {
-  if (!options || options.length === 0) {
+  if (!options?.length) {
     throw new Error("No source URL provided.");
   }
 
