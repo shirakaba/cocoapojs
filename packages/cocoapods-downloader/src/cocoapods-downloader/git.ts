@@ -2,7 +2,7 @@ import type { UICallbacks } from "./base.js";
 import { Base } from "./base.js";
 
 export interface CheckoutOptions {
-  [key: string]: unknown;
+  [key: string]: string | boolean | number | Array<string>;
   git: string;
   submodules: boolean;
   commit: string;
@@ -29,14 +29,14 @@ export class Git extends Base<CheckoutOptions> {
   }
 
   options_specific(): boolean {
-    return this.options.commit != null || this.options.tag != null;
+    return !!this._options.commit || !!this._options.tag;
   }
 
   checkout_options(): Pick<CheckoutOptions, "git" | "commit" | "submodules"> {
     return {
       git: this.url,
       commit: this.target_git(["rev_parse", "head"]).trim(),
-      submodules: Boolean(this.options["submodules"]),
+      submodules: Boolean(this._options.submodules),
     };
   }
 
@@ -46,7 +46,7 @@ export class Git extends Base<CheckoutOptions> {
     }
 
     const input = [options.git, options.commit].flatMap((v) =>
-      v == null ? [] : [String(v)],
+      v ? [String(v)] : [],
     );
     if (input.some((v) => v.startsWith("--") || v.includes(" --"))) {
       throw new Error(
@@ -55,13 +55,13 @@ export class Git extends Base<CheckoutOptions> {
     }
 
     const command = ["ls-remote", "--", options.git, options.branch].filter(
-      (v): v is string => v != null,
+      (v): v is string => !!v,
     );
 
     const output = Git.execute_command("git", command);
     const match = Git.commit_from_ls_remote(output, options.branch);
 
-    if (match == null) {
+    if (!match) {
       return options;
     }
 
@@ -73,25 +73,23 @@ export class Git extends Base<CheckoutOptions> {
 
   private static commit_from_ls_remote(
     output: string,
-    branch_name: string | null,
-  ): string | null {
-    if (branch_name == null) {
-      return null;
+    branch_name: string | undefined,
+  ): string | undefined {
+    if (!branch_name) {
+      return undefined;
     }
 
     const regex = new RegExp(
       `([a-z0-9]*)\\trefs\\/(heads|tags)\\/${escapeRegExp(branch_name)}`,
     );
 
-    const match = output.match(regex);
-
-    return match == null ? null : match[1];
+    return output.match(regex)?.[1];
   }
 
   protected async perform_download(): Promise<void> {
     await this.clone();
-    if (this.options.commit != null) {
-      return this.checkout_commit(this.options.commit);
+    if (this._options.commit) {
+      return this.checkout_commit(this._options.commit);
     }
   }
 
@@ -110,20 +108,20 @@ export class Git extends Base<CheckoutOptions> {
         this.update_submodules();
       } catch (error: unknown) {
         if (
-          (error as Error).message.match(
-            /^fatal:.*does not support (--depth|shallow capabilities)$/im,
-          ) == null
+          !/^fatal:.*does not support (--depth|shallow capabilities)$/im.test(
+            (error as Error).message,
+          )
         ) {
           throw error;
-        } else {
-          return this.clone(force_head, false);
         }
+
+        return this.clone(force_head, false);
       }
     });
   }
 
   private update_submodules(): void {
-    if (this.options.submodules) {
+    if (this._options.submodules) {
       this.target_git(["submodule", "update", "--init", "recursive"]);
     }
   }
@@ -134,11 +132,11 @@ export class Git extends Base<CheckoutOptions> {
   ): Array<string> {
     const command = ["clone", this.url, this.target_path, "--template="];
 
-    if (shallow_clone && !this.options.commit) {
+    if (shallow_clone && !this._options.commit) {
       command.push("--single-branch", "--depth", "1");
     }
 
-    const tag_or_branch = this.options.tag || this.options.branch;
+    const tag_or_branch = this._options.tag || this._options.branch;
     if (!force_head && tag_or_branch) {
       command.push("--branch", tag_or_branch);
     }

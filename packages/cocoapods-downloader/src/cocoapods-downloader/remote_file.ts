@@ -17,8 +17,7 @@ import xpath from "xpath";
 import { Base, type UICallbacks } from "./base.js";
 
 export interface RemoteFileOptions {
-  [key: string]: unknown;
-
+  [key: string]: string | boolean | number | Array<string>;
   type: string;
   flatten: boolean;
   sha1: string;
@@ -27,12 +26,12 @@ export interface RemoteFileOptions {
 }
 
 export abstract class RemoteFile extends Base<RemoteFileOptions> {
-  download_path: string | null = null;
+  download_path: string | undefined = undefined;
 
   protected constructor(
     target_path: string,
     url: string,
-    options: Record<string, unknown>,
+    options: Partial<RemoteFileOptions>,
     callbacks?: UICallbacks,
   ) {
     super(target_path, url, options, callbacks);
@@ -55,25 +54,27 @@ export abstract class RemoteFile extends Base<RemoteFileOptions> {
     this.extract_with_type(filename, this.download_path, type);
   }
 
-  protected abstract download_file(full_filename: string): Promise<void>;
+  protected abstract download_file(full_filename: string): void;
 
   private type() {
-    return this.options.type ?? this.type_with_url(this.url);
+    return this._options.type ?? this.type_with_url(this.url);
   }
 
   private headers() {
-    return this.options.headers;
+    return this._options.headers;
   }
 
   private should_flatten() {
     const type = this.type();
-    if (this.options.flatten != null) {
-      return this.options.flatten;
-    } else if (type && ["tgz", "tar", "tbz", "txz"].includes(type)) {
-      return true; // those archives flatten by default
-    } else {
-      return false; //  all others (actually only .zip) default not to flatten
+    if (this._options.flatten) {
+      return this._options.flatten;
     }
+
+    if (type && ["tgz", "tar", "tbz", "txz"].includes(type)) {
+      return true; // those archives flatten by default
+    }
+
+    return false; //  all others (actually only .zip) default not to flatten
   }
 
   private type_with_url(url: string) {
@@ -92,7 +93,7 @@ export abstract class RemoteFile extends Base<RemoteFileOptions> {
     } else if (pathname.endsWith(".dmg")) {
       return "dmg";
     } else {
-      return null;
+      return;
     }
   }
 
@@ -220,10 +221,10 @@ export abstract class RemoteFile extends Base<RemoteFileOptions> {
   }
 
   private async verify_checksum(filename: string) {
-    if (this.options.sha256) {
-      return this.compare_hash(filename, "sha256", this.options.sha256);
-    } else if (this.options.sha1) {
-      return this.compare_hash(filename, "sha1", this.options.sha1);
+    if (this._options.sha256) {
+      return this.compare_hash(filename, "sha256", this._options.sha256);
+    } else if (this._options.sha1) {
+      return this.compare_hash(filename, "sha1", this._options.sha1);
     }
   }
 }

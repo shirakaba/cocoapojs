@@ -1,11 +1,16 @@
-import { Base, type UICallbacks } from "./base.js";
+import { type UICallbacks } from "./base.js";
+import type { RemoteFileOptions } from "./remote_file.js";
 import { RemoteFile } from "./remote_file.js";
 
 export class Scp extends RemoteFile {
+  protected perform_download_head(): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
   constructor(
     target_path: string,
     url: string,
-    options: Record<string, unknown>,
+    options: Partial<RemoteFileOptions>,
     callbacks?: UICallbacks,
   ) {
     super(target_path, url, options, callbacks);

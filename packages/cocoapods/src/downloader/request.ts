@@ -9,17 +9,17 @@ export class Request {
   params!: Record<string, string | boolean>;
 
   constructor({
-    spec = null,
-    released = false,
-    name = null,
-    params = null,
+    spec,
+    released,
+    name,
+    params,
   }: {
-    spec?: Specification | null;
+    spec?: Specification;
     released?: boolean;
-    name?: string | null;
-    params?: Record<string, string | boolean> | null;
+    name?: string;
+    params?: Record<string, string | boolean>;
   }) {
-    this.released_pod = released;
+    this.released_pod = !!released;
     this.spec = spec!;
     this.params = spec && spec.source ? structuredClone(spec.source) : params!;
     this.name = spec ? spec.name : name!;

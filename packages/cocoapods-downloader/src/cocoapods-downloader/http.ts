@@ -1,11 +1,16 @@
 import type { UICallbacks } from "./base.js";
+import type { RemoteFileOptions } from "./remote_file.js";
 import { RemoteFile } from "./remote_file.js";
 
 export class Http extends RemoteFile {
+  protected perform_download_head(): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
   constructor(
     target_path: string,
     url: string,
-    options: Record<string, unknown>,
+    options: RemoteFileOptions,
     callbacks?: UICallbacks,
   ) {
     super(target_path, url, options, callbacks);
@@ -24,8 +29,8 @@ export class Http extends RemoteFile {
       "2",
     ];
 
-    if (this.options.headers) {
-      const userAgentHeader = this.options.headers.find((key) =>
+    if (this._options.headers) {
+      const userAgentHeader = this._options.headers.find((key) =>
         key.toLowerCase().includes("user-agent"),
       );
 
@@ -33,7 +38,7 @@ export class Http extends RemoteFile {
         parameters.push(`-A '${Http.user_agent_string()}'`);
       }
 
-      for (const header of this.options.headers) {
+      for (const header of this._options.headers) {
         parameters.push("-H", header);
       }
     }

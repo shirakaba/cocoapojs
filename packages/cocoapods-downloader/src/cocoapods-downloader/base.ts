@@ -8,13 +8,15 @@ import { VERSION } from "./gem_version.js";
 
 export type UICallbacks = typeof defaultCallbacks;
 
-export abstract class Base<Options extends Record<string, string>> {
-  #options: Partial<Options>;
+export abstract class Base<
+  Options extends Record<string, string | boolean | number | Array<string>>,
+> {
+  protected _options: Partial<Options>;
   static options(): Array<string> {
     return [];
   }
   get options(): Array<keyof Options> {
-    return Object.keys(this.#options);
+    return Object.keys(this._options);
   }
 
   protected constructor(
@@ -23,7 +25,7 @@ export abstract class Base<Options extends Record<string, string>> {
     options: Partial<Options>,
     private callbacks: UICallbacks = defaultCallbacks,
   ) {
-    this.#options = options;
+    this._options = options;
 
     const supportedOptions = new Set(
       (this.constructor as typeof Base).options(),
