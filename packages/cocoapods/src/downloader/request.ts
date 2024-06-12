@@ -6,20 +6,20 @@ export class Request {
   spec!: Specification;
   released_pod!: boolean;
   name!: string;
-  params!: Record<string, string>;
+  params!: Record<string, string | boolean>;
 
   constructor({
-    spec = null,
-    released = false,
-    name = null,
-    params = null,
+    spec,
+    released,
+    name,
+    params,
   }: {
-    spec?: Specification | null;
+    spec?: Specification;
     released?: boolean;
-    name?: string | null;
-    params?: Record<string, string> | null;
+    name?: string;
+    params?: Record<string, string | boolean>;
   }) {
-    this.released_pod = released;
+    this.released_pod = !!released;
     this.spec = spec!;
     this.params = spec && spec.source ? structuredClone(spec.source) : params!;
     this.name = spec ? spec.name : name!;

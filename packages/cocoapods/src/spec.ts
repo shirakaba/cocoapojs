@@ -3,7 +3,7 @@
 
 export interface Specification {
   name: string;
-  source?: Record<string, string>;
+  source?: Record<string, string | boolean>;
   version: string;
   checksum?: string;
 

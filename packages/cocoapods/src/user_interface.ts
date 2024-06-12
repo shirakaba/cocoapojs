@@ -2,6 +2,7 @@
 import * as path from "node:path";
 import { cwd } from "node:process";
 
+import type { Set } from "@repo/cocoapods-core";
 import type { Color } from "kleur";
 import { green, yellow } from "kleur";
 
@@ -263,10 +264,7 @@ export class UserInterface {
    * @param  mode
    *         the presentation mode, either `:normal` or `:name_and_version`.
    */
-  static pod(
-    set: Set<unknown>,
-    mode: "normal" | "name_and_version" = "normal",
-  ): void {
+  static pod(set: Set, mode: "normal" | "name_and_version" = "normal"): void {
     // TODO: reverse-engineer this
     // https://github.com/CocoaPods/Core/blob/d9cdb56b6b5d8bf11ab7b04cc3e01587f6196d8c/lib/cocoapods-core/specification/set/presenter.rb
 
@@ -300,8 +298,11 @@ export class UserInterface {
     // end
 
     if (mode === "name_and_version") {
-      this.puts_indented(`${set.get("name")}`);
+      this.puts_indented(`${set.name} ${set.versions.at(0)?.version}`);
+      return;
     }
+
+    // TODO: implement the rest
   }
 
   /**
@@ -388,16 +389,25 @@ export class UserInterface {
    * @return [Fixnum] The index of the chosen array item.
    */
   static choose_from_array(array: Array<unknown>, message: string): number {
-    // array.each_with_index do |item, index|
-    //   UI.puts "#{index + 1}: #{item}"
-    // end
-    // UI.puts message
-    // index = UI.gets.chomp.to_i - 1
-    // if index < 0 || index > array.count - 1
-    //   raise Informative, "#{index + 1} is invalid [1-#{array.count}]"
-    // else
-    //   index
-    // end
+    for (const [index, item] of array.entries()) {
+      // Call the custom to_s() method if present
+      const stringified =
+        typeof item === "object" &&
+        item !== null &&
+        typeof (item as { to_s: () => string })["to_s"] === "function"
+          ? (item as { to_s: () => string }).to_s()
+          : `${item}`;
+      UserInterface.puts(`${index + 1}: ${stringified}`);
+    }
+
+    UserInterface.puts(message);
+    const index = Number.parseInt(UserInterface.gets().trim()) - 1;
+
+    if (index < 0 || index > array.length - 1) {
+      throw new Error(`${index + 1} is invalid [1-${array.length}]`);
+    }
+
+    return index;
   }
 
   // public
